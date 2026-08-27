@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五年級HTBS單字互動學習｜英文定義+例句+聽寫測驗</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui, sans-serif;margin:0;padding:0;}
+body{background:#f7f9fc;padding:24px;max-width:1100px;margin:0 auto;color:#222;}
+h1{text-align:center;margin-bottom:24px;font-size:22px;color:#2c5282;}
+.mode-bar{display:flex;gap:12px;margin-bottom:20px;justify-content:center;flex-wrap:wrap;}
+button{padding:10px 18px;border:none;border-radius:8px;font-size:15px;cursor:pointer;background:#3182ce;color:white;transition:.2s;}
+button:hover{background:#2b6cb0;}
+button.secondary{background:#718096;}
+button.success{background:#38a169;}
+
+/* 主區域：左卡片 + 右圖例 */
+.main-area{display:flex;gap:20px;align-items:flex-start;}
+.card{background:#fff;padding:28px;border-radius:14px;box-shadow:0 2px 12px #00000014;flex:1;min-width:0;}
+
+/* 右側圖例面板 */
+.legend-panel{width:200px;background:#fff;padding:20px;border-radius:14px;box-shadow:0 2px 12px #00000014;flex-shrink:0;font-size:14px;}
+.legend-panel h3{font-size:16px;color:#2c5282;margin-bottom:14px;text-align:center;border-bottom:2px solid #e2e8f0;padding-bottom:8px;}
+.legend-item{display:flex;align-items:center;gap:8px;margin:10px 0;padding:6px 8px;border-radius:6px;background:#f7fafc;}
+.legend-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.legend-text{color:#4a5568;line-height:1.4;font-size:13px;}
+.legend-hint{margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;color:#718096;font-size:12px;line-height:1.6;}
+.legend-hint .speak-icon{color:#3182ce;font-weight:bold;}
+
+/* 例圖區 */
+.illust-area{text-align:center;margin:0 0 16px 0;padding:16px;background:#f0f7ff;border-radius:12px;border:2px dashed #bee3f8;}
+.illust-emoji{font-size:72px;line-height:1;display:inline-block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));transition:transform .3s;}
+.illust-emoji:hover{transform:scale(1.15) rotate(-5deg);}
+
+.word-title{font-size:28px;font-weight:bold;margin-bottom:12px;color:#2d3748;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.word-title .spk-btn{font-size:18px;opacity:.55;transition:opacity .2s;cursor:pointer;line-height:1;}
+.word-title:hover .spk-btn,.word-title .spk-btn:hover{opacity:1;}
+.pos{color:#718096;font-size:16px;margin-bottom:8px;}
+.block{margin:14px 0;}
+.label{font-weight:bold;color:#2c5282;margin-bottom:4px;display:block;}
+.definition,.sentence{line-height:1.6;font-size:16px;cursor:pointer;display:inline-block;position:relative;}
+.definition:hover,.sentence:hover{background:#ebf4ff;border-radius:3px;}
+.chinese{margin-top:10px;color:#c53030;}
+.hidden{visibility:hidden;}
+.input-area{margin-top:16px;}
+input[type="text"]{width:100%;padding:12px;font-size:18px;border:1px solid #cbd5e0;border-radius:8px;margin:8px 0;}
+.score-box{text-align:center;font-size:17px;margin:12px 0;}
+.feedback{font-size:17px;font-weight:bold;margin:10px 0;}
+.correct{color:#2f855a;}
+.wrong{color:#c53030;}
+.nav-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center;}
+small{color:#777;}
+
+/* 點擊發音的小喇叭按鈕 */
+.speakable{position:relative;}
+.speakable::after{content:'🔊';position:absolute;top:-4px;right:-22px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;}
+.speakable:hover::after{opacity:.6;}
+
+/* 正在播放：簡單顏色高亮，不閃爍 */
+.speaking{color:#3182ce !important;font-weight:600 !important;}
+.speaking::after{opacity:1 !important;}
+
+/* 響應式：小螢幕隱藏右側圖例 */
+@media(max-width:800px){
+  .main-area{flex-direction:column;}
+  .legend-panel{width:100%;order:-1;}
+}
+
+/* 資料來源 / 說明面板 */
+.info-panel{background:#fff;padding:20px 24px;border-radius:14px;box-shadow:0 2px 12px #00000014;margin-top:22px;font-size:14px;color:#4a5568;}
+.info-panel h3{font-size:17px;color:#2c5282;margin-bottom:12px;border-bottom:2px solid #e2e8f0;padding-bottom:8px;}
+.info-list{list-style:none;padding:0;margin:0 0 14px 0;}
+.info-list li{margin:8px 0;line-height:1.6;}
+.info-list code{background:#edf2f7;padding:1px 6px;border-radius:4px;font-size:13px;color:#2d3748;}
+.audio-block{display:flex;gap:20px;flex-wrap:wrap;}
+.audio-item{flex:1;min-width:260px;background:#f7fafc;padding:12px 14px;border-radius:10px;}
+.audio-title{font-weight:bold;color:#2c5282;margin-bottom:8px;}
+.audio-item audio{width:100%;}
+.audio-link{display:inline-block;margin-top:6px;color:#3182ce;font-size:13px;text-decoration:none;}
+.audio-link:hover{text-decoration:underline;}
+.info-note{margin-top:12px;color:#718096;font-size:12px;line-height:1.6;}
+</style>
+</head>
+<body>
+<h1>五年級 HTBS 單字大會考｜互動學習</h1>
+
+<div class="mode-bar">
+  <button id="btnStudy">📖 學習模式</button>
+  <button id="btnDictation">🎧 聽寫測驗模式</button>
+</div>
+
+<div class="main-area">
+<div class="card">
+  <div id="studyView">
+    <div class="illust-area"><span class="illust-emoji" id="illustEmoji">🍮</span></div>
+    <div class="word-title speakable" id="engWord" title="點擊發音">dessert<span class="spk-btn">🔊</span></div>
+    <div class="pos" id="posText">noun (n.)</div>
+
+    <div class="block">
+      <span class="label">📝 English Definition</span>
+      <div class="definition speakable" id="engDef" title="點擊發音">sweet food eaten after a meal</div>
+    </div>
+
+    <div class="block">
+      <span class="label">💡 Example Sentence</span>
+      <div class="sentence speakable" id="engSent" title="點擊發音">We had ice‑cream for dessert after dinner.</div>
+    </div>
+
+    <div class="block">
+      <span class="label">🇹🇼 中文翻譯 <small>(可切換顯示隱藏)</small></span>
+      <div class="chinese" id="zhText">點心；甜點</div>
+    </div>
+
+    <div class="nav-row">
+      <button id="btnToggleZh">隱藏/顯示中文</button>
+      <button id="btnNextWord">下一單字 →</button>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <small>第 <span id="studyIdx">1</span> / <span id="totalCount">0</span> 個單字</small>
+    </div>
+  </div>
+
+  <div id="dictationView" style="display:none;">
+    <div class="block">
+      <span class="label">📌 看中文，輸入英文單字</span>
+      <div class="chinese" id="dictZh">點心</div>
+    </div>
+    <div class="input-area">
+      <input type="text" id="dictInput" placeholder="請輸入英文單字" autocomplete="off">
+    </div>
+    <div class="feedback" id="dictFeedback"></div>
+    <div class="score-box">
+      ✅答對：<span id="okCount">0</span> ｜ ❌錯誤：<span id="errCount">0</span>
+    </div>
+    <div class="nav-row">
+      <button id="btnCheckAns">確認答案</button>
+      <button id="btnNextDict">下一題</button>
+      <button class="secondary" id="btnResetTest">重設測驗</button>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <small>測驗進度：<span id="dictIdx">1</span> / <span id="dictTotal">0</span></small>
+    </div>
+  </div>
+</div>
+
+<!-- 右側圖例 -->
+<div class="legend-panel" id="legendPanel">
+  <h3>📋 圖例說明</h3>
+  <div class="legend-item"><span class="legend-icon">📝</span><span class="legend-text"><b>English Definition</b><br>英文定義（用簡單英文解釋單字意思）</span></div>
+  <div class="legend-item"><span class="legend-icon">💡</span><span class="legend-text"><b>Example Sentence</b><br>例句（在實際句子中如何使用）</span></div>
+  <div class="legend-item"><span class="legend-icon">🇹🇼</span><span class="legend-text"><b>中文翻譯</b><br>繁體中文翻譯，可切換隱藏</span></div>
+  <div class="legend-item"><span class="legend-icon">🖼️</span><span class="legend-text"><b>例圖</b><br>單字對應的插圖（emoji），幫助聯想記憶</span></div>
+  <div class="legend-item"><span class="legend-icon">n. / v.</span><span class="legend-text"><b>詞性</b><br>n. = 名詞（noun）<br>v. = 動詞（verb）</span></div>
+  <div class="legend-hint">
+    <span class="speak-icon">🔊 發音提示：</span><br>
+    • 點擊<b>單字</b> → 讀出單字<br>
+    • 點擊<b>定義</b> → 讀出英文定義<br>
+    • 點擊<b>例句</b> → 讀出完整例句
+  </div>
+</div>
+</div><!-- end main-area -->
+
+<!-- 資料來源 / 說明 -->
+<div class="info-panel">
+  <h3>📚 資料來源 / 說明</h3>
+  <ul class="info-list">
+    <li><b>單字總數：</b><span id="srcCount">0</span> 個（含詞性、英文定義、例句、中文翻譯、例圖 emoji）</li>
+    <li><b>單字來源：</b>《G5 單字大會考》單字表（<code>1.pdf</code>，原 263 字；本 App 已整理匯入並補齊定義／例句／中文）</li>
+    <li><b>匯入日期：</b>2026-08-24</li>
+  </ul>
+  <div class="audio-block">
+    <div class="audio-item">
+      <div class="audio-title">🎧 單字大會考 音檔 p1</div>
+      <audio controls preload="none" src="0617%20G5%20單字大會考%20p1%20已修改%20%28soup%29.mp3"></audio>
+      <a class="audio-link" href="0617%20G5%20單字大會考%20p1%20已修改%20%28soup%29.mp3">▶ 開啟音檔</a>
+    </div>
+    <div class="audio-item">
+      <div class="audio-title">🎧 單字大會考 音檔 p2</div>
+      <audio controls preload="none" src="G5%20單字大會考%20p2.mp3"></audio>
+      <a class="audio-link" href="G5%20單字大會考%20p2.mp3">▶ 開啟音檔</a>
+    </div>
+  </div>
+  <p class="info-note">本頁為單一自包含 HTML（無外部依賴）；音檔採相對路徑，需與本檔案置於同一資料夾（<code>voc/</code>）才能播放。單字資料全部內嵌於本頁 <code>wordList</code> 陣列，無需任何外部檔案。</p>
+</div>
+
+<script>
+// 單字庫：英文單字｜詞性｜英文定義｜例句｜中文翻譯｜例圖 emoji
+const wordList = [
+{"word":"dessert","pos":"n.","def":"sweet food eaten after a meal","sent":"We had ice‑cream for dessert after dinner.","zh":"點心","emoji":"🍮"},
+{"word":"lemonade","pos":"n.","def":"a cold drink made from lemon juice, sugar and water","sent":"I would like a glass of cold lemonade.","zh":"檸檬水","emoji":"🍋"},
+{"word":"lettuce","pos":"n.","def":"green leaf vegetable used in salads","sent":"Please add some lettuce to my hamburger.","zh":"萵苣，生菜","emoji":"🥬"},
+{"word":"potato","pos":"n.","def":"round vegetable that grows under the ground","sent":"My mom cooks baked potatoes for lunch.","zh":"馬鈴薯","emoji":"🥔"},
+{"word":"pepper","pos":"n.","def":"hot‑tasting powder used for cooking","sent":"Could you pass me some pepper?","zh":"胡椒粉","emoji":"🌶️"},
+{"word":"sausage","pos":"n.","def":"meat in a long thin tube shape","sent":"I eat a sausage for breakfast every morning.","zh":"香腸","emoji":"🌭"},
+{"word":"soap","pos":"n.","def":"substance used for washing hands and body","sent":"Wash your hands with soap and water.","zh":"肥皂","emoji":"🧼"},
+{"word":"sugar","pos":"n.","def":"sweet white substance for food and drinks","sent":"Don't put too much sugar in your tea.","zh":"糖","emoji":"🍬"},
+{"word":"hamburger","pos":"n.","def":"round bread with meat inside","sent":"He eats a hamburger for dinner.","zh":"漢堡","emoji":"🍔"},
+{"word":"pancake","pos":"n.","def":"thin flat cake fried in a pan","sent":"We eat pancakes on Sunday morning.","zh":"薄餅（煎餅）","emoji":"🥞"},
+{"word":"biscuit","pos":"n.","def":"small dry baked cake","sent":"I have some biscuits with milk.","zh":"餅乾","emoji":"🍪"},
+{"word":"menu","pos":"n.","def":"list of food you can order in a restaurant","sent":"Please look at the menu before ordering.","zh":"菜單","emoji":"📋"},
+{"word":"meat","pos":"n.","def":"flesh from animals that people eat","sent":"This restaurant sells good meat dishes.","zh":"肉，肉類(食用)","emoji":"🥩"},
+{"word":"fridge","pos":"n.","def":"machine to keep food cold","sent":"Put the milk into the fridge.","zh":"冰箱","emoji":"🧊"},
+{"word":"cafeteria","pos":"n.","def":"place where people buy and eat food","sent":"Our school cafeteria serves nice food.","zh":"自助餐廳或食堂","emoji":"🍽️"},
+{"word":"fold","pos":"v.","def":"bend something so one part lies on another","sent":"Please fold your clothes neatly.","zh":"折疊","emoji":"👕"},
+{"word":"fit","pos":"v.","def":"be the right size for something","sent":"This pair of shoes does not fit me.","zh":"適合","emoji":"👟"},
+{"word":"happen","pos":"v.","def":"take place; occur","sent":"What will happen tomorrow?","zh":"發生","emoji":"❓"},
+{"word":"hold","pos":"v.","def":"keep something in your hands","sent":"Please hold my hand when we cross the street.","zh":"持有，握","emoji":"🤝"},
+{"word":"hurry","pos":"v.","def":"do something quickly because you are late","sent":"We must hurry or we will miss the bus.","zh":"催促；急忙","emoji":"⏰"},
+{"word":"invite","pos":"v.","def":"ask someone to come to a party or place","sent":"I want to invite my friends to my birthday party.","zh":"邀請","emoji":"💌"},
+{"word":"know","pos":"v.","def":"have information or understand something","sent":"Do you know his name?","zh":"知道；認識","emoji":"🧠"},
+{"word":"leave","pos":"v.","def":"go away from a place","sent":"We will leave home at seven o'clock.","zh":"離開","emoji":"🚪"},
+{"word":"let","pos":"v.","def":"allow someone to do something","sent":"Please let me help you.","zh":"讓，使","emoji":"✋"},
+{"word":"lock","pos":"v.","def":"fasten with a lock","sent":"Remember to lock the door before you go out.","zh":"鎖住","emoji":"🔒"},
+{"word":"meet","pos":"v.","def":"come together with someone","sent":"I will meet you at the park.","zh":"遇見；滿足","emoji":"🤗"},
+{"word":"measure","pos":"v.","def":"find the size or amount of something","sent":"We measure the length of the desk.","zh":"測量","emoji":"📏"},
+{"word":"mess","pos":"v.","def":"make something dirty or untidy","sent":"Don't mess up your bedroom.","zh":"弄髒；雜亂","emoji":"🧹"},
+{"word":"own","pos":"v.","def":"have something as your property","sent":"He owns a small dog.","zh":"擁有","emoji":"🏠"},
+{"word":"order","pos":"v.","def":"ask for food or goods to be given to you","sent":"I want to order some noodles.","zh":"命令；訂購","emoji":"📝"},
+{"word":"promise","pos":"v.","def":"say you will do something","sent":"I promise I will finish my homework.","zh":"承諾","emoji":"🤞"},
+{"word":"practice","pos":"n.","def":"doing an activity many times to get better","sent":"You need more practice for your English.","zh":"練習，實踐","emoji":"🎯"},
+{"word":"remember","pos":"v.","def":"keep something in your mind","sent":"Please remember to bring your book.","zh":"記得","emoji":"💭"},
+{"word":"share","pos":"v.","def":"give part of something to others","sent":"We share the cake with our classmates.","zh":"分享","emoji":"🍰"},
+{"word":"skate","pos":"v.","def":"move on ice with special shoes","sent":"Many children like to skate in winter.","zh":"滑冰","emoji":"⛸️"},
+{"word":"smell","pos":"v.","def":"use your nose to notice something","sent":"The flowers smell very nice.","zh":"聞起來","emoji":"👃"},
+{"word":"sound","pos":"v.","def":"give a certain impression when heard","sent":"Your plan sounds great.","zh":"聽起來","emoji":"👂"},
+{"word":"speak","pos":"v.","def":"say words; talk","sent":"She can speak English very well.","zh":"說話","emoji":"💬"},
+{"word":"spell","pos":"v.","def":"write the letters of a word correctly","sent":"Can you spell this word?","zh":"拼寫","emoji":"🔤"},
+{"word":"think","pos":"v.","def":"use your mind to form ideas","sent":"I think it is a good idea.","zh":"思考","emoji":"💡"},
+{"word":"touch","pos":"v.","def":"put your hand onto something","sent":"Please do not touch the hot pot.","zh":"觸碰","emoji":"👆"},
+{"word":"trust","pos":"v.","def":"believe someone is honest","sent":"You can trust your good friends.","zh":"相信","emoji":"🛡️"},
+{"word":"understand","pos":"v.","def":"get the meaning of something","sent":"Do you understand this story?","zh":"理解","emoji":"💡"},
+{"word":"visit","pos":"v.","def":"go to see a person or place","sent":"We will visit our grandma this weekend.","zh":"參觀；拜訪","emoji":"🏡"},
+{"word":"wake","pos":"v.","def":"stop sleeping","sent":"I wake up at six every morning.","zh":"醒","emoji":"☀️"},
+{"word":"dolphin","pos":"n.","def":"clever sea animal that swims fast","sent":"We saw many dolphins in the sea.","zh":"海豚","emoji":"🐬"},
+{"word":"giraffe","pos":"n.","def":"tall animal with a long neck","sent":"The giraffe eats leaves from tall trees.","zh":"長頸鹿","emoji":"🦒"},
+{"word":"sheep","pos":"n.","def":"farm animal with thick wool","sent":"The farmer has ten sheep on his farm.","zh":"羊，綿羊","emoji":"🐑"},
+{"word":"shark","pos":"n.","def":"large dangerous fish in the ocean","sent":"Sharks swim very fast in the sea.","zh":"鯊魚","emoji":"🦈"},
+{"word":"snake","pos":"n.","def":"long animal with no legs","sent":"Some snakes can be dangerous.","zh":"蛇","emoji":"🐍"},
+{"word":"add","pos":"v.","def":"put numbers together in math","sent":"Please add five and three.","zh":"做加法","emoji":"➕"},
+{"word":"believe","pos":"v.","def":"feel sure something is true","sent":"I believe you can do well.","zh":"相信","emoji":"✨"},
+{"word":"build","pos":"v.","def":"make something by putting parts together","sent":"Workers build a new house.","zh":"建造","emoji":"🏗️"},
+{"word":"burn","pos":"v.","def":"be on fire; hurt by fire","sent":"Be careful; the candle can burn your fingers.","zh":"燃燒","emoji":"🔥"},
+{"word":"change","pos":"v.","def":"make or become different","sent":"The weather will change this afternoon.","zh":"改變","emoji":"🔄"},
+{"word":"choose","pos":"v.","def":"pick one from many things","sent":"You can choose one toy from the box.","zh":"選擇","emoji":"🎲"},
+{"word":"catch","pos":"v.","def":"get something that moves through air","sent":"Can you catch the ball?","zh":"抓住","emoji":"🤏"},
+{"word":"celebrate","pos":"v.","def":"have fun for an important day","sent":"We celebrate New Year's Day together.","zh":"慶祝","emoji":"🎉"},
+{"word":"count","pos":"v.","def":"say numbers one after another","sent":"Please count from one to twenty.","zh":"(按順序)數數","emoji":"🔢"},
+{"word":"decide","pos":"v.","def":"make up your mind","sent":"I decide to go to the library today.","zh":"決定","emoji":"✔️"},
+{"word":"fall","pos":"v.","def":"go down from a high place","sent":"Leaves fall from the trees in autumn.","zh":"降落，落下","emoji":"🍂"},
+{"word":"follow","pos":"v.","def":"go behind someone","sent":"Please follow me to the classroom.","zh":"跟隨","emoji":"🚶"},
+{"word":"finish","pos":"v.","def":"complete something","sent":"I finish my homework before dinner.","zh":"完成","emoji":"🏁"},
+{"word":"forget","pos":"v.","def":"cannot remember something","sent":"Do not forget your schoolbag.","zh":"忘記","emoji":"🤔"},
+{"word":"another","pos":"adj.","def":"one more; a different one","sent":"May I have another cookie?","zh":"另一個","emoji":"➕"},
+{"word":"amazing","pos":"adj.","def":"very surprising in a good way","sent":"The magic show was amazing.","zh":"令人驚奇的","emoji":"🌟"},
+{"word":"both","pos":"adj.","def":"the two together","sent":"Both of my parents are teachers.","zh":"兩者的","emoji":"👥"},
+{"word":"whole","pos":"adj.","def":"all; complete","sent":"I ate the whole pizza.","zh":"整個的","emoji":"🍕"},
+{"word":"wide","pos":"adj.","def":"having a large distance across","sent":"The road is wide.","zh":"寬的","emoji":"↔️"},
+{"word":"bored","pos":"adj.","def":"feeling tired because nothing is interesting","sent":"I am bored at home.","zh":"無聊的","emoji":"😪"},
+{"word":"wonderful","pos":"adj.","def":"very good; great","sent":"We had a wonderful trip.","zh":"很棒的","emoji":"🌟"},
+{"word":"boring","pos":"adj.","def":"not interesting","sent":"The movie was boring.","zh":"乏味的","emoji":"😴"},
+{"word":"worried","pos":"adj.","def":"feeling anxious","sent":"Mom is worried about me.","zh":"擔心的","emoji":"😟"},
+{"word":"broken","pos":"adj.","def":"damaged; not working","sent":"My toy is broken.","zh":"壞掉的","emoji":"💔"},
+{"word":"worrying","pos":"adj.","def":"making one feel anxious","sent":"The worrying news made me sad.","zh":"令人擔心的","emoji":"😟"},
+{"word":"careful","pos":"adj.","def":"taking care to avoid mistakes","sent":"Be careful when you cross the road.","zh":"小心的","emoji":"⚠️"},
+{"word":"anywhere","pos":"adv.","def":"in any place","sent":"You can sit anywhere.","zh":"任何地方","emoji":"📍"},
+{"word":"correct","pos":"adj.","def":"right; without mistakes","sent":"Your answer is correct.","zh":"正確的","emoji":"✅"},
+{"word":"carefully","pos":"adv.","def":"with care","sent":"He drove carefully.","zh":"小心地","emoji":"⚠️"},
+{"word":"clever","pos":"adj.","def":"smart; able to learn fast","sent":"The clever boy solved the puzzle.","zh":"聰明的","emoji":"🧠"},
+{"word":"easily","pos":"adv.","def":"without difficulty","sent":"She learns easily.","zh":"容易地","emoji":"✅"},
+{"word":"finally","pos":"adv.","def":"at the end","sent":"Finally, we finished.","zh":"最後","emoji":"🏁"},
+{"word":"deep","pos":"adj.","def":"going far down","sent":"The lake is very deep.","zh":"深的","emoji":"🌊"},
+{"word":"double","pos":"adj.","def":"twice as much","sent":"I want a double scoop of ice cream.","zh":"雙倍的","emoji":"✌️"},
+{"word":"each","pos":"adj.","def":"every one of two or more","sent":"Each student has a book.","zh":"每個","emoji":"🔢"},
+{"word":"early","pos":"adj.","def":"before the usual time","sent":"We arrived early at school.","zh":"早的","emoji":"⏰"},
+{"word":"quickly","pos":"adv.","def":"fast","sent":"He ran quickly.","zh":"快速地","emoji":"⚡"},
+{"word":"enough","pos":"adj.","def":"as much as needed","sent":"We have enough food for everyone.","zh":"足夠的","emoji":"✅"},
+{"word":"quietly","pos":"adv.","def":"with little noise","sent":"She spoke quietly.","zh":"安靜地","emoji":"🤫"},
+{"word":"colorful","pos":"adj.","def":"having many colors","sent":"The garden is colorful in spring.","zh":"色彩繽紛的","emoji":"🌈"},
+{"word":"really","pos":"adv.","def":"truly; very","sent":"I am really happy.","zh":"真的","emoji":"💯"},
+{"word":"every","pos":"adj.","def":"all; each one","sent":"Every child likes candy.","zh":"每個","emoji":"🔢"},
+{"word":"sadly","pos":"adv.","def":"in a sad way","sent":"She walked away sadly.","zh":"悲傷地","emoji":"😢"},
+{"word":"expensive","pos":"adj.","def":"costing a lot of money","sent":"The diamond ring is expensive.","zh":"昂貴的","emoji":"💎"},
+{"word":"slowly","pos":"adv.","def":"at a slow speed","sent":"The snail moved slowly.","zh":"緩慢地","emoji":"🐢"},
+{"word":"empty","pos":"adj.","def":"with nothing inside","sent":"The bottle is empty.","zh":"空的","emoji":"🫙"},
+{"word":"somewhere","pos":"adv.","def":"in some place","sent":"I left my book somewhere.","zh":"某處","emoji":"📍"},
+{"word":"fear","pos":"v.& n.","def":"be afraid of something","sent":"The little dog fears the storm.","zh":"害怕","emoji":"😨"},
+{"word":"soon","pos":"adv.","def":"in a short time","sent":"See you soon.","zh":"不久","emoji":"⏱️"},
+{"word":"few","pos":"adj.","def":"not many","sent":"There are few apples left.","zh":"很少的","emoji":"🔸"},
+{"word":"least","pos":"adj.","def":"smallest in amount","sent":"He has the least money.","zh":"最少的","emoji":"🔻"},
+{"word":"less","pos":"adj.","def":"a smaller amount","sent":"I have less homework today.","zh":"較少的","emoji":"🔻"},
+{"word":"wonderfully","pos":"adv.","def":"in a wonderful way","sent":"She sang wonderfully.","zh":"極佳地","emoji":"🌟"},
+{"word":"living","pos":"adj.","def":"alive; not dead","sent":"All living things need water.","zh":"活著的","emoji":"🌱"},
+{"word":"lost","pos":"adj.","def":"unable to find the way","sent":"The lost dog cried for help.","zh":"迷路的","emoji":"🧭"},
+{"word":"above","pos":"prep.","def":"higher than","sent":"The bird is above the tree.","zh":"在…上方","emoji":"⬆️"},
+{"word":"lonely","pos":"adj.","def":"sad because alone","sent":"The old man feels lonely.","zh":"孤單的","emoji":"🥺"},
+{"word":"during","pos":"prep.","def":"while something happens","sent":"We slept during the movie.","zh":"在…期間","emoji":"⏳"},
+{"word":"primary","pos":"adj.","def":"first; main","sent":"This is my primary school.","zh":"主要的；小學的","emoji":"🏫"},
+{"word":"inside","pos":"prep.","def":"within","sent":"The cat is inside the box.","zh":"在…裡面","emoji":"📦"},
+{"word":"playful","pos":"adj.","def":"liking to play; fun","sent":"The playful puppy ran around.","zh":"愛玩的","emoji":"🐶"},
+{"word":"real","pos":"adj.","def":"true; not fake","sent":"This is a real diamond.","zh":"真正的","emoji":"💎"},
+{"word":"sharp","pos":"adj.","def":"having a thin edge that cuts","sent":"Be careful with the sharp knife.","zh":"銳利的","emoji":"🔪"},
+{"word":"sleepy","pos":"adj.","def":"wanting to sleep","sent":"The baby looks sleepy.","zh":"想睡的","emoji":"😴"},
+{"word":"can","pos":"v.","def":"be able to","sent":"I can swim.","zh":"能夠","emoji":"💪"},
+{"word":"straight","pos":"adj.","def":"not curved","sent":"Draw a straight line.","zh":"直的","emoji":"📏"},
+{"word":"could","pos":"v.","def":"past of can","sent":"I could ride a bike at five.","zh":"能（過去式）","emoji":"💪"},
+{"word":"strange","pos":"adj.","def":"unusual; odd","sent":"That noise sounds strange.","zh":"奇怪的","emoji":"❓"},
+{"word":"must","pos":"aux.","def":"have to; should","sent":"You must wear a helmet.","zh":"必須","emoji":"⛑️"},
+{"word":"surprised","pos":"adj.","def":"feeling shock at something unexpected","sent":"She was surprised by the gift.","zh":"驚訝的","emoji":"😲"},
+{"word":"might","pos":"aux.","def":"maybe will","sent":"It might rain later.","zh":"也許會","emoji":"🌧️"},
+{"word":"surprising","pos":"adj.","def":"causing surprise","sent":"It is a surprising result.","zh":"令人驚訝的","emoji":"😲"},
+{"word":"may","pos":"v.","def":"be allowed to; perhaps","sent":"May I go outside?","zh":"可以；可能","emoji":"✅"},
+{"word":"maybe","pos":"adv.","def":"perhaps","sent":"Maybe it will snow.","zh":"也許","emoji":"🌫️"},
+{"word":"should","pos":"modal v.","def":"ought to","sent":"You should study hard.","zh":"應該","emoji":"📚"},
+{"word":"happy","pos":"adj.","def":"feeling glad","sent":"I am happy today.","zh":"快樂的","emoji":"😊"},
+{"word":"would","pos":"modal v.","def":"past of will","sent":"I would like some tea.","zh":"會（過去式）","emoji":"🔮"},
+{"word":"hungry","pos":"adj.","def":"wanting food","sent":"I am hungry, let's eat.","zh":"餓的","emoji":"🍽️"},
+{"word":"large","pos":"adj.","def":"big in size","sent":"We live in a large house.","zh":"大的","emoji":"🏠"},
+{"word":"often","pos":"adv.","def":"many times","sent":"We often go to the park.","zh":"經常","emoji":"🔁"},
+{"word":"sometimes","pos":"adv.","def":"now and then","sent":"I sometimes eat pizza.","zh":"有時","emoji":"🔁"},
+{"word":"there","pos":"adv.","def":"in that place","sent":"Put it there.","zh":"那裡","emoji":"📍"},
+{"word":"morning","pos":"n.","def":"the early part of the day","sent":"I eat breakfast in the morning.","zh":"早上","emoji":"🌅"},
+{"word":"when","pos":"adv.","def":"at what time","sent":"When is your birthday?","zh":"什麼時候","emoji":"⏰"},
+{"word":"where","pos":"adv.","def":"in what place","sent":"Where is my bag?","zh":"哪裡","emoji":"📍"},
+{"word":"which","pos":"det. & pron.","def":"what one","sent":"Which book do you like?","zh":"哪一個","emoji":"❓"},
+{"word":"why","pos":"adv.","def":"for what reason","sent":"Why are you late?","zh":"為什麼","emoji":"❓"},
+{"word":"here","pos":"adv.","def":"in this place","sent":"Come here, please.","zh":"這裡","emoji":"📍"},
+{"word":"angry","pos":"adj.","def":"feeling strong displeasure","sent":"The angry man shouted.","zh":"生氣的","emoji":"😠"},
+{"word":"short","pos":"adj.","def":"not long","sent":"He is a short boy.","zh":"短的；矮的","emoji":"📏"},
+{"word":"checked","pos":"adj.","def":"with a pattern of squares","sent":"She wore a checked dress.","zh":"格紋的","emoji":"🔳"},
+{"word":"smart","pos":"adj.","def":"clever; intelligent","sent":"My smart sister won the prize.","zh":"聰明的","emoji":"🧠"},
+{"word":"cloudy","pos":"adj.","def":"covered with clouds","sent":"It is a cloudy day.","zh":"多雲的","emoji":"☁️"},
+{"word":"strong","pos":"adj.","def":"having power; not weak","sent":"He is strong enough to lift it.","zh":"強壯的","emoji":"💪"},
+{"word":"dear","pos":"adj.","def":"loved; precious","sent":"She is my dear friend.","zh":"親愛的","emoji":"💝"},
+{"word":"easy","pos":"adj.","def":"not difficult","sent":"This math problem is easy.","zh":"容易的","emoji":"✅"},
+{"word":"everyday","pos":"adj.","def":"happening each day","sent":"These are my everyday shoes.","zh":"日常的","emoji":"📅"},
+{"word":"sweet","pos":"adj.","def":"tasting like sugar","sent":"The cake is sweet.","zh":"甜的","emoji":"🍬"},
+{"word":"fast","pos":"adj.","def":"moving quickly","sent":"He is a fast runner.","zh":"快的","emoji":"⚡"},
+{"word":"fine","pos":"adj.","def":"good; well","sent":"I am fine, thank you.","zh":"好的","emoji":"👍"},
+{"word":"good","pos":"adj.","def":"of high quality","sent":"She is a good girl.","zh":"好的","emoji":"👍"},
+{"word":"great","pos":"adj.","def":"very good; large","sent":"We had a great time.","zh":"很棒的","emoji":"🌟"},
+{"word":"windy","pos":"adj.","def":"with much wind","sent":"It is windy outside.","zh":"有風的","emoji":"🌬️"},
+{"word":"wrong","pos":"adj.","def":"not correct","sent":"Your answer is wrong.","zh":"錯誤的","emoji":"❌"},
+{"word":"hard","pos":"adj.","def":"not soft; difficult","sent":"The stone is hard.","zh":"硬的；困難的","emoji":"🪨"},
+{"word":"young","pos":"adj.","def":"not old","sent":"The young girl is happy.","zh":"年輕的","emoji":"🧒"},
+{"word":"around","pos":"prep.","def":"on every side of","sent":"We sat around the table.","zh":"圍繞","emoji":"🔄"},
+{"word":"between","pos":"prep.","def":"in the middle of two","sent":"The ball is between the chairs.","zh":"在…之間","emoji":"↔️"},
+{"word":"behind","pos":"prep.","def":"at the back of","sent":"The dog is behind the door.","zh":"在…後面","emoji":"🔙"},
+{"word":"down","pos":"adv.","def":"to a lower place","sent":"Sit down, please.","zh":"向下","emoji":"⬇️"},
+{"word":"from","pos":"prep.","def":"starting at","sent":"I come from Taiwan.","zh":"從","emoji":"➡️"},
+{"word":"under","pos":"adv.&prep.","def":"below","sent":"The cat is under the chair.","zh":"在…下面","emoji":"⬇️"},
+{"word":"with","pos":"prep.","def":"accompanied by","sent":"I play with my dog.","zh":"和…一起","emoji":"🤝"},
+{"word":"suprise","pos":"n.","def":"something unexpected","sent":"The gift was a surprise.","zh":"驚喜","emoji":"🎁"},
+{"word":"activity","pos":"n.","def":"something you do","sent":"Reading is my favorite activity.","zh":"活動","emoji":"🎯"},
+{"word":"address","pos":"n.","def":"where you live","sent":"What is your home address?","zh":"地址","emoji":"🏠"},
+{"word":"theater","pos":"n.","def":"a place to watch shows","sent":"We went to the theater.","zh":"戲院","emoji":"🎭"},
+{"word":"amount","pos":"n.","def":"how much of something","sent":"A small amount of sugar.","zh":"數量","emoji":"🔢"},
+{"word":"thinker","pos":"n.","def":"one who thinks deeply","sent":"He is a great thinker.","zh":"思考者","emoji":"💡"},
+{"word":"builder","pos":"n.","def":"a person who builds","sent":"The builder made a house.","zh":"建造者","emoji":"👷"},
+{"word":"thought","pos":"n.","def":"an idea","sent":"I had a strange thought.","zh":"想法","emoji":"💭"},
+{"word":"building","pos":"n.","def":"a structure with rooms","sent":"The building is very tall.","zh":"建築物","emoji":"🏢"},
+{"word":"truth","pos":"n.","def":"what is true","sent":"Tell the truth.","zh":"真相","emoji":"✅"},
+{"word":"beginning","pos":"n.","def":"the start","sent":"At the beginning, it was quiet.","zh":"開始","emoji":"🔛"},
+{"word":"volleyball","pos":"n.","def":"a ball game","sent":"We play volleyball.","zh":"排球","emoji":"🏐"},
+{"word":"branch","pos":"n.","def":"a part of a tree","sent":"The bird sat on a branch.","zh":"樹枝","emoji":"🌿"},
+{"word":"button","pos":"n.","def":"a small round switch","sent":"Press the button to start.","zh":"按鈕；鈕扣","emoji":"🔘"},
+{"word":"boxing","pos":"n.","def":"a sport of fighting with fists","sent":"He likes boxing.","zh":"拳擊","emoji":"🥊"},
+{"word":"bowling","pos":"n.","def":"a game of rolling balls","sent":"We went bowling.","zh":"保齡球","emoji":"🎳"},
+{"word":"brick","pos":"n.","def":"a block for building","sent":"The wall is made of brick.","zh":"磚塊","emoji":"🧱"},
+{"word":"bakery","pos":"n.","def":"a shop that sells bread","sent":"We buy bread at the bakery.","zh":"麵包店","emoji":"🥖"},
+{"word":"battery","pos":"n.","def":"gives power to a device","sent":"The remote needs a battery.","zh":"電池","emoji":"🔋"},
+{"word":"bank","pos":"n.","def":"where you keep money","sent":"I put money in the bank.","zh":"銀行","emoji":"🏦"},
+{"word":"cartoon","pos":"n.","def":"a funny drawing or show","sent":"The cartoon is funny.","zh":"卡通","emoji":"📺"},
+{"word":"bedtime","pos":"n.","def":"time to go to sleep","sent":"It is bedtime now.","zh":"就寢時間","emoji":"🛏️"},
+{"word":"ceiling","pos":"n.","def":"the top inside surface","sent":"The light is on the ceiling.","zh":"天花板","emoji":"⬆️"},
+{"word":"bookshelf","pos":"n.","def":"a shelf for books","sent":"The book is on the bookshelf.","zh":"書架","emoji":"📚"},
+{"word":"camper","pos":"n.","def":"a person who camps","sent":"The camper slept in a tent.","zh":"露營者","emoji":"⛺"},
+{"word":"dancing","pos":"n.","def":"moving to music","sent":"Dancing is fun.","zh":"跳舞","emoji":"💃"},
+{"word":"cost","pos":"n.","def":"the price","sent":"The cost is ten dollars.","zh":"花費；成本","emoji":"💲"},
+{"word":"conversation","pos":"n.","def":"talking with others","sent":"We had a conversation.","zh":"對話","emoji":"💬"},
+{"word":"email","pos":"n.","def":"a message by computer","sent":"I sent an email.","zh":"電子郵件","emoji":"📧"},
+{"word":"crayon","pos":"n.","def":"a colored wax stick","sent":"I draw with a crayon.","zh":"蠟筆","emoji":"🖍️"},
+{"word":"chopstick","pos":"n.","def":"a pair of sticks to eat","sent":"We eat with chopsticks.","zh":"筷子","emoji":"🥢"},
+{"word":"feeling","pos":"n.","def":"an emotion","sent":"I have a happy feeling.","zh":"感覺","emoji":"💗"},
+{"word":"example","pos":"n.","def":"something that shows a rule","sent":"Here is an example.","zh":"例子","emoji":"📝"},
+{"word":"earth","pos":"n.","def":"the planet we live on","sent":"The earth is round.","zh":"地球","emoji":"🌍"},
+{"word":"exercise","pos":"n.& v.","def":"activity to stay healthy","sent":"I exercise every morning.","zh":"運動","emoji":"🏃"},
+{"word":"future","pos":"adj. ; n.","def":"time that will come","sent":"I dream about the future.","zh":"未來","emoji":"🔮"},
+{"word":"floor","pos":"n.","def":"the surface you walk on","sent":"The ball is on the floor.","zh":"地板","emoji":"⬇️"},
+{"word":"knife","pos":"n.","def":"a tool to cut","sent":"Be careful with the knife.","zh":"刀子","emoji":"🔪"},
+{"word":"group","pos":"n.","def":"more than one together","sent":"We work in a group.","zh":"群體","emoji":"👥"},
+{"word":"letter","pos":"n.","def":"a written message; a-b-c","sent":"I got a letter today.","zh":"信件；字母","emoji":"✉️"},
+{"word":"health","pos":"n.","def":"being well","sent":"Health is important.","zh":"健康","emoji":"❤️"},
+{"word":"lunch","pos":"n.","def":"food in the middle of day","sent":"We eat lunch at noon.","zh":"午餐","emoji":"🍱"},
+{"word":"island","pos":"n.","def":"land with water around","sent":"Taiwan is an island.","zh":"島嶼","emoji":"🏝️"},
+{"word":"instrument","pos":"n.","def":"a tool to make music","sent":"He plays a musical instrument.","zh":"樂器","emoji":"🎺"},
+{"word":"money","pos":"n.","def":"coins and bills","sent":"I save my money.","zh":"錢","emoji":"💰"},
+{"word":"magazine","pos":"n.","def":"a thin book with stories","sent":"I read a magazine.","zh":"雜誌","emoji":"📖"},
+{"word":"meal","pos":"n.","def":"food eaten at a time","sent":"Dinner is my favorite meal.","zh":"餐；膳食","emoji":"🍽️"},
+{"word":"mistake","pos":"n.","def":"a wrong action","sent":"I made a mistake.","zh":"錯誤","emoji":"❌"},
+{"word":"picnic","pos":"n.","def":"eating outdoors","sent":"We had a picnic.","zh":"野餐","emoji":"🧺"},
+{"word":"medicine","pos":"n.","def":"something to cure illness","sent":"Take the medicine.","zh":"藥","emoji":"💊"},
+{"word":"mailbox","pos":"n.","def":"where letters are kept","sent":"The letter is in the mailbox.","zh":"郵筒","emoji":"📫"},
+{"word":"meaning","pos":"n.","def":"what something means","sent":"What is the meaning?","zh":"意思","emoji":"❓"},
+{"word":"news","pos":"n.","def":"new information","sent":"I watch the news.","zh":"新聞","emoji":"📰"},
+{"word":"mail","pos":"n.","def":"letters and packages","sent":"The mail arrived.","zh":"郵件","emoji":"📬"},
+{"word":"number","pos":"n.","def":"a count or figure","sent":"My number is seven.","zh":"數字","emoji":"🔢"},
+{"word":"message","pos":"n.","def":"words sent to someone","sent":"I got your message.","zh":"訊息","emoji":"💬"},
+{"word":"party","pos":"n.","def":"a happy gathering","sent":"We had a birthday party.","zh":"派對","emoji":"🎉"},
+{"word":"price","pos":"n.","def":"how much money","sent":"The price is low.","zh":"價格","emoji":"💲"},
+{"word":"plane","pos":"n.","def":"a flying vehicle","sent":"We flew on a plane.","zh":"飛機","emoji":"✈️"},
+{"word":"problem","pos":"n.","def":"something hard to solve","sent":"Math is a problem.","zh":"問題","emoji":"❓"},
+{"word":"pack","pos":"n. ;v.","def":"a bundle; to fill a bag","sent":"I pack my bag.","zh":"打包；包","emoji":"🎒"},
+{"word":"room","pos":"n.","def":"a space in a building","sent":"I clean my room.","zh":"房間","emoji":"🚪"},
+{"word":"station","pos":"n.","def":"a place for buses or trains","sent":"Wait at the station.","zh":"車站","emoji":"🚉"},
+{"word":"sand","pos":"n.","def":"tiny grains at the beach","sent":"The sand is warm.","zh":"沙子","emoji":"🏖️"},
+{"word":"machine","pos":"n.","def":"a device that works","sent":"The washing machine is loud.","zh":"機器","emoji":"⚙️"},
+{"word":"street","pos":"n.","def":"a road in a town","sent":"The street is busy.","zh":"街道","emoji":"🛣️"},
+{"word":"mountain","pos":"n.","def":"a very high hill","sent":"We climb the mountain.","zh":"山","emoji":"⛰️"},
+{"word":"test","pos":"n.","def":"a check of knowledge","sent":"We have a test today.","zh":"測驗","emoji":"📝"},
+{"word":"movie","pos":"n.","def":"a film","sent":"We watch a movie.","zh":"電影","emoji":"🎬"},
+{"word":"trash","pos":"n.","def":"waste; garbage","sent":"Throw the trash away.","zh":"垃圾","emoji":"🗑️"},
+{"word":"mile","pos":"n.","def":"a unit of distance","sent":"It is one mile away.","zh":"英里","emoji":"📏"},
+{"word":"type","pos":"n.","def":"a kind","sent":"What type do you like?","zh":"類型","emoji":"🔠"},
+{"word":"museum","pos":"n.","def":"a place for old things","sent":"We visit the museum.","zh":"博物館","emoji":"🏛️"},
+{"word":"violin","pos":"n.","def":"a musical instrument","sent":"She plays the violin.","zh":"小提琴","emoji":"🎻"},
+{"word":"wheel","pos":"n.","def":"a round part that turns","sent":"The car has four wheels.","zh":"輪子","emoji":"⚙️"},
+{"word":"wind","pos":"n.","def":"moving air","sent":"The wind is strong.","zh":"風","emoji":"🌬️"},
+{"word":"map","pos":"vt. n.","def":"a drawing of a place","sent":"Read the map, please.","zh":"地圖","emoji":"🗺️"},
+{"word":"winner","pos":"n.","def":"one who wins","sent":"He is the winner.","zh":"贏家","emoji":"🏆"},
+{"word":"Miss","pos":"abbr.","def":"title for an unmarried girl","sent":"Miss Lin is my teacher.","zh":"小姐","emoji":"👩"},
+{"word":"wood","pos":"n.","def":"the material from trees","sent":"The chair is made of wood.","zh":"木頭","emoji":"🪵"},
+{"word":"ache","pos":"n.","def":"a dull pain","sent":"I have a headache.","zh":"疼痛","emoji":"🤕"},
+{"word":"child","pos":"n.","def":"a young person","sent":"The child is playing.","zh":"小孩","emoji":"🧒"},
+{"word":"airline","pos":"n.","def":"a company with planes","sent":"The airline is busy.","zh":"航空公司","emoji":"✈️"},
+{"word":"Mr.","pos":"abbr.","def":"title for a man","sent":"Mr. Wang is my neighbor.","zh":"先生","emoji":"🧑"},
+{"word":"alphabet","pos":"n.","def":"all the letters a-b-c","sent":"I know the alphabet.","zh":"字母表","emoji":"🔤"},
+{"word":"Mrs.","pos":"abbr.","def":"title for a married woman","sent":"Mrs. Chen is kind.","zh":"太太","emoji":"👩"},
+{"word":"bottom","pos":"n.","def":"the lowest part","sent":"The ball is at the bottom.","zh":"底部","emoji":"⬇️"},
+{"word":"Ms.","pos":"abbr.","def":"title for a woman","sent":"Ms. Lee is a doctor.","zh":"女士","emoji":"👩"},
+{"word":"board","pos":"n.","def":"a flat piece of wood","sent":"Write on the board.","zh":"木板；黑板","emoji":"🪧"},
+{"word":"night-time","pos":"n.","def":"the time of night","sent":"I sleep at night-time.","zh":"夜間","emoji":"🌙"},
+{"word":"blanket","pos":"n.","def":"a cover for warmth","sent":"The blanket is soft.","zh":"毯子","emoji":"🛌"},
+{"word":"opening","pos":"n.","def":"a hole; a start","sent":"The opening is small.","zh":"開口；開幕","emoji":"🔓"},
+{"word":"beginner","pos":"n.","def":"one who starts","sent":"He is a beginner.","zh":"初學者","emoji":"🌱"},
+{"word":"owner","pos":"n.","def":"one who owns","sent":"The owner of the dog.","zh":"擁有者","emoji":"🏠"},
+{"word":"blackboard","pos":"n.","def":"a board to write on","sent":"The teacher uses a blackboard.","zh":"黑板","emoji":"🟫"},
+{"word":"camera","pos":"n.","def":"a device to take photos","sent":"I have a camera.","zh":"相機","emoji":"📷"},
+{"word":"chess","pos":"n.","def":"a game with pieces","sent":"We play chess.","zh":"西洋棋","emoji":"♟️"},
+{"word":"cooking","pos":"n.","def":"making food","sent":"Cooking is fun.","zh":"烹飪","emoji":"🍳"},
+{"word":"dollar","pos":"n.","def":"a unit of money","sent":"It costs one dollar.","zh":"美元","emoji":"💵"},
+{"word":"end","pos":"n. v.","def":"the last part; to finish","sent":"The story has an end.","zh":"結尾；結束","emoji":"🔚"},
+{"word":"fight","pos":"v.& n.","def":"to hit; a battle","sent":"The boys fight.","zh":"打架；戰鬥","emoji":"👊"},
+{"word":"fork","pos":"n.","def":"a tool to eat","sent":"Use a fork to eat.","zh":"叉子","emoji":"🍴"},
+{"word":"gate","pos":"n.","def":"a door in a fence","sent":"Wait at the gate.","zh":"大門","emoji":"🚪"},
+{"word":"garbage","pos":"n.","def":"waste","sent":"Throw garbage out.","zh":"垃圾","emoji":"🗑️"},
+{"word":"glass","pos":"n.","def":"a cup; a hard clear material","sent":"I drink from a glass.","zh":"玻璃杯；玻璃","emoji":"🥛"},
+{"word":"guitar","pos":"n.","def":"a musical instrument","sent":"He plays the guitar.","zh":"吉他","emoji":"🎸"},
+{"word":"grass","pos":"n.","def":"green plants on ground","sent":"The grass is green.","zh":"草地","emoji":"🌱"},
+{"word":"grade","pos":"n.","def":"a school year; a mark","sent":"I am in fifth grade.","zh":"年級；成績","emoji":"🏫"},
+{"word":"glove","pos":"n.","def":"a cover for the hand","sent":"Wear a glove in winter.","zh":"手套","emoji":"🧤"},
+{"word":"helper","pos":"n.","def":"one who helps","sent":"She is a good helper.","zh":"幫手","emoji":"🤝"},
+{"word":"house","pos":"n.","def":"a place to live","sent":"I live in a house.","zh":"房子","emoji":"🏠"},
+{"word":"holiday","pos":"n.","def":"a day off","sent":"We enjoy the holiday.","zh":"假日","emoji":"🎊"},
+{"word":"hall","pos":"n.","def":"a large room","sent":"We meet in the hall.","zh":"大廳","emoji":"🏛️"},
+{"word":"honey","pos":"n.","def":"sweet food from bees","sent":"I like honey on toast.","zh":"蜂蜜","emoji":"🍯"},
+{"word":"lake","pos":"n.","def":"water with land around","sent":"We swim in the lake.","zh":"湖泊","emoji":"🏞️"},
+{"word":"market","pos":"n.","def":"a place to buy food","sent":"We go to the market.","zh":"市場","emoji":"🛒"}
+];
+
+// 狀態
+let studyIndex = 0;
+let dictIndex = 0;
+let scoreOk = 0;
+let scoreErr = 0;
+let zhShow = true;
+
+// DOM
+const $ = s=>document.querySelector(s);
+const studyView = $("#studyView");
+const dictView = $("#dictationView");
+
+// 切換模式
+$("#btnStudy").onclick = ()=>{studyView.style.display="block";dictView.style.display="none";};
+$("#btnDictation").onclick = ()=>{studyView.style.display="none";dictView.style.display="block";resetDict();renderDict();};
+
+$("#totalCount").textContent = wordList.length;
+$("#dictTotal").textContent = wordList.length;
+$("#srcCount").textContent = wordList.length;
+
+// ===== 文字轉語音（TTS）=====
+function speakText(text, el){
+  if(!('speechSynthesis' in window)){alert('您的瀏覽器不支援語音合成功能');return;}
+  /* 先取消正在播放的語音 */
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.85;  /* 稍慢一點，方便學習 */
+  utter.pitch = 1.0;
+  /* 播放時加入動畫效果 */
+  if(el){el.classList.add('speaking');}
+  utter.onend = function(){if(el){el.classList.remove('speaking');}};
+  utter.onerror = function(){if(el){el.classList.remove('speaking');}};
+  window.speechSynthesis.speak(utter);
+}
+
+/* 綁定點擊發音事件 */
+function bindSpeakEvents(){
+  $('#engWord').onclick = function(){
+    const w = wordList[studyIndex];
+    speakText(w.word, this);
+  };
+  $('#engDef').onclick = function(){
+    const w = wordList[studyIndex];
+    speakText(w.def, this);
+  };
+  $('#engSent').onclick = function(){
+    const w = wordList[studyIndex];
+    speakText(w.sent, this);
+  };
+}
+
+// 學習模式渲染
+function renderStudy(){
+	const w = wordList[studyIndex];
+	$("#illustEmoji").textContent = w.emoji || '📖';
+	$("#engWord").innerHTML = w.word + '<span class="spk-btn">🔊</span>';
+	$("#posText").textContent = w.pos;
+	$("#engDef").textContent = w.def;
+	$("#engSent").textContent = w.sent;
+	$("#zhText").textContent = w.zh;
+	$("#zhText").className = zhShow?"chinese":"chinese hidden";
+	$("#studyIdx").textContent = studyIndex+1;
+	bindSpeakEvents();
+}
+$("#btnToggleZh").onclick = ()=>{zhShow=!zhShow;renderStudy();};
+$("#btnNextWord").onclick = ()=>{studyIndex=(studyIndex+1)%wordList.length;renderStudy();};
+
+// 聽寫模式
+function resetDict(){
+	dictIndex = 0; scoreOk=0; scoreErr=0;
+	$("#dictInput").value="";$("#dictFeedback").textContent="";
+	updateScore();
+}
+function updateScore(){
+	$("#okCount").textContent=scoreOk;
+	$("#errCount").textContent=scoreErr;
+}
+function renderDict(){
+	const w = wordList[dictIndex];
+	$("#dictZh").textContent = w.zh;
+	$("#dictInput").value="";
+	$("#dictFeedback").textContent="";
+	$("#dictIdx").textContent = dictIndex+1;
+}
+$("#btnCheckAns").onclick = ()=>{
+	const w = wordList[dictIndex];
+	const userAns = $("#dictInput").value.trim().toLowerCase();
+	$("#dictFeedback").textContent="";
+	if(userAns === w.word.toLowerCase()){
+		$("#dictFeedback").textContent="✅正確！";
+		$("#dictFeedback").className="feedback correct";
+		scoreOk++;
+	}else{
+		$("#dictFeedback").textContent=`❌錯誤，正確單字：${w.word}`;
+		$("#dictFeedback").className="feedback wrong";
+		scoreErr++;
+	}
+	updateScore();
+};
+$("#btnNextDict").onclick = ()=>{
+	dictIndex=(dictIndex+1)%wordList.length;
+	renderDict();
+};
+$("#btnResetTest").onclick = ()=>{resetDict();renderDict();};
+
+// 初始化
+renderStudy();
+</script>
+</body>
+</html>
